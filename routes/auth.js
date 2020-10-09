@@ -30,25 +30,23 @@ router.post('/register',async (req,res) => {
         }
 });
 
-//LOGIN
+
 router.post('/login',async(req,res) => {
-    const emailexists = await User.findOne({email:req.body.email});
-    if(emailexists) return res.status(400).send('email exists');
+    const user = await User.findOne({email: req.body.email});
+    if(!user) return res.status(401).send({
+        error: 'email is incorrect',
+        status: 401,
 
-    //password correct
+    });
+
     const validpass = await bcrypt.compare(req.body.password,user.password);
-    if(!validpass) return res.status(400).send('invalid password');
-
-
-    //create and assign token
-    const token = jwt.sign({_id:user._id});
-    res.header('auth-token',token).send(token);
-
-    res.send('LOGGED IN');
+    if(!validpass) return res.status(401).send({error: 'invalid password', status: 401});
+    
+    res.json(user);
 });
 
 
 
-
 module.exports=router;
+
 
